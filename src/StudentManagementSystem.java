@@ -2,6 +2,7 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -40,6 +41,7 @@ public class StudentManagementSystem extends JFrame{
 	public  JButton displayGrade;
 	public  JButton clearGrade;
 	public  JButton exit;
+	public 	ArrayList<Student> al=new ArrayList<Student>();
 
 	
 	public static void main(String args[]) {
@@ -163,7 +165,27 @@ public class StudentManagementSystem extends JFrame{
 		return setTitle;
 	}
 	public void createStudent() {
-		JOptionPane.showMessageDialog(null, "This is amazing", "Discription", 1);
+		String name=stnameTextfield.getText();
+		String year=yearTextfield.getText();
+		if(name.equals("") || year.equals("")) {
+			JOptionPane.showMessageDialog(null, "Both Name and date are mandatory", "Error Message", 1);
+		}
+	
+		else if(validateData(name)&& validateYear(year)) {
+			al.add(new Student(name,year));
+			String text="";
+//			textarea.setText("New Student is created with name" +name+ "and Year Level"+year);
+			for (int i = 0; i < al.size(); i++) {
+				text=text+"Name:  "+al.get(i).getName() + "Year Level"+al.get(i).getYearLevel()+'\n';
+			}
+			textarea.setText(text);
+			loadAssesment.setEnabled(true);
+		}
+		else {
+			JOptionPane.showMessageDialog(null, "Please enter name only alphabet and Year should be only 11 or 12", "Warning message", 1);
+			
+		}
+		
 	}
 	public void LoadAssesment() {
 		JOptionPane.showMessageDialog(null, "This is LoadAssesment", "Discription", 1);
@@ -184,6 +206,22 @@ public class StudentManagementSystem extends JFrame{
 	public void clearGrade() {
 		JOptionPane.showMessageDialog(null, "This is clearGrade", "Discription", 1);
 
+	}
+	public boolean validateData(String name) {
+		char c='a';
+		for (int i = 0; i < name.length(); i++) {
+			if(Character.isDigit(c)==true) {
+				return false;
+			}
+		}
+		return true;
+	}
+	public boolean validateYear(String year) {
+		int yearLevel=Integer.parseInt(year);
+		if(yearLevel<11 || yearLevel>12)
+			return false;
+		else
+			return true;
 	}
 	
 }
