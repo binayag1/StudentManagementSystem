@@ -2,7 +2,12 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Scanner;
+
+import javax.security.auth.Subject;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -14,6 +19,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
+import javax.xml.crypto.Data;
 
 public class StudentManagementSystem extends JFrame{
 	/**
@@ -42,7 +48,12 @@ public class StudentManagementSystem extends JFrame{
 	public  JButton clearGrade;
 	public  JButton exit;
 	public 	ArrayList<Student> al=new ArrayList<Student>();
-
+	ArrayList<Subjects> subjectList=new ArrayList<Subjects>();
+	private final String[] subjects= {"Biology", "Business and Communication Technologies", "English", "Maths B", "Religion and Ethics"};
+	private final String[] grades= {"Very high", "High", "Sound", "Developing", "Emerging"};
+	private String filename="Data.csv";
+	public ArrayList<String> forSubjects=new ArrayList<String>();
+	Student createdStudent=	new Student();
 	
 	public static void main(String args[]) {
 		StudentManagementSystem sm=new StudentManagementSystem();
@@ -53,7 +64,6 @@ public class StudentManagementSystem extends JFrame{
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setTitle("Student Management System");
 		frame.setSize(1300,900);
-		frame.setResizable(false);
 		frame.setVisible(true);
 		frame.add(setPanelTop(),new BorderLayout().NORTH);
 		frame.add(setPanelMiddle(),new BorderLayout().CENTER);
@@ -130,7 +140,9 @@ public class StudentManagementSystem extends JFrame{
 		displayAssesment.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {	
+				String subjectName=subCombo.getSelectedItem().toString();
 				displayAssesment();
+				System.out.println("I am here");
 			}
 		});	
 		setGrade.addActionListener(new ActionListener() {
@@ -158,42 +170,136 @@ public class StudentManagementSystem extends JFrame{
 			}
 		});	
 		
+		subCombo.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String selectedSubject=subCombo.getSelectedItem().toString();
+				selecteItem(selectedSubject);
+				
+			}
+		});
+		
 		return jp3;
+	}
+	protected void selecteItem(String selectedSubject) {
+		if(assCombo.getItemCount()>0) {
+			assCombo.removeAllItems();
+		}
+		for (int i = 0; i < subjectList.size(); i++) {
+			if(selectedSubject.toUpperCase().equals(subjectList.get(i).subjectName.toUpperCase())) {
+				String assesmentId=subjectList.get(i).getMarkedAssesment().getAssesmentId();
+				String assesmentType=subjectList.get(i).getMarkedAssesment().getTypeOfAssesment();
+				String assesmentFormat=subjectList.get(i).getMarkedAssesment().getAssesmentFormat();
+				String assesmentTopic=subjectList.get(i).getMarkedAssesment().getAssesmentTopic();
+				String line=assesmentId+"  "+assesmentType+ " "+assesmentFormat+"  "+assesmentTopic;
+				assCombo.addItem(line);
+			}
+		}
+		
 	}
 	public  TitledBorder settitleBorder(String title) {
 		TitledBorder setTitle=BorderFactory.createTitledBorder(title);
 		return setTitle;
 	}
 	public void createStudent() {
-		String name=stnameTextfield.getText();
-		String year=yearTextfield.getText();
-		if(name.equals("") || year.equals("")) {
-			JOptionPane.showMessageDialog(null, "Both Name and date are mandatory", "Error Message", 1);
-		}
-	
-		else if(validateData(name)&& validateYear(year)) {
-			al.add(new Student(name,year));
-			String text="";
-//			textarea.setText("New Student is created with name" +name+ "and Year Level"+year);
-			for (int i = 0; i < al.size(); i++) {
-				text=text+"Name:  "+al.get(i).getName() + "Year Level"+al.get(i).getYearLevel()+'\n';
+		try {
+			String name=stnameTextfield.getText();
+			String yearLevel=yearTextfield.getText();
+			if(name.equals("") || yearLevel.equals("")) {
+				JOptionPane.showMessageDialog(null, "Both Name and date are mandatory", "Error Message", 1);
 			}
-			textarea.setText(text);
+		
+			else if(validateData(name)&& validateYear(yearLevel)) {
+			createdStudent.setStudentName(name);
+			createdStudent.setYearLevel(yearLevel);
+			createdStudent.setSub(subjects);
 			loadAssesment.setEnabled(true);
+			textarea.setText("New Student has been created"+"Student Name: "+name+" Student YearLevel: "+yearLevel);
+			}
+			else {
+				JOptionPane.showMessageDialog(null, "Please enter name only alphabet and Year should be only 11 or 12", "Warning message", 1);
+				
+			}
 		}
-		else {
-			JOptionPane.showMessageDialog(null, "Please enter name only alphabet and Year should be only 11 or 12", "Warning message", 1);
-			
+		catch(Exception e) {
+			System.out.println(e.getMessage());
 		}
 		
 	}
 	public void LoadAssesment() {
-		JOptionPane.showMessageDialog(null, "This is LoadAssesment", "Discription", 1);
+		try {
+			if(assCombo.getItemCount()>0) {
+				textarea.setText("Assesments are already loaded");
+			}
+			else {
+				
+				Scanner scanner =new Scanner(new File(filename));
+				while(scanner.hasNextLine()) {
+					Subjects subject1=new Subjects();
+					MarkedAssesment markedAssment=new MarkedAssesment();
+					String[] col=scanner.nextLine().split(",");
+					subject1.setSubjectName(col[0]);
+					markedAssment.setMarGrade("Still not graded");
+					markedAssment.setAssesmentId(col[1]);
+					markedAssment.setTypeOfAssesment(col[2]);
+					markedAssment.setAssesmentTopic(col[3]);
+					markedAssment.setAssesmentFormat(col[4]);
+					markedAssment.setAssesmentLastDate(col[5]);
+					markedAssment.setGraded(false);
+					subject1.setMarkedAssesment(markedAssment);
+					subjectList.add(subject1);
+					System.out.println(markedAssment);
+				}
+				createdStudent.getStudentName();
+				String[] column=createdStudent.getSub();
+				subCombo.addItem("Select Subject");
+				for(String item: column) {
+					subCombo.addItem(item);
+				}
+				for (int i = 0; i < grades.length; i++) {
+					gradeCombo.addItem(grades[i]);
+				}
+			}
+			}
+		
+			catch(Exception e) {
+				System.out.println(e.getMessage());
+			}
+			System.out.println("I am here second");
 
 	}
 	public void displayAssesment() {
-		JOptionPane.showMessageDialog(null, "This is displayAssesment", "Discription", 1);
+		String subjectName=subCombo.getSelectedItem().toString();
+		if(subCombo.getSelectedIndex()==0) {
+			textarea.setText("Please select subjects");
+		}
+		else if(assCombo.getItemCount()==0){
+			textarea.setText("Assesments are not loaded properly. Please load assesment first and display assesment.");
+		}
+		else {
+			String subject=subjectName;
+			for (int i = 0; i < subjectList.size(); i++) {
+				String name=subjectList.get(i).getSubjectName();
+				String id=subjectList.get(i).getMarkedAssesment().getAssesmentId();
+				String assesmentType=subjectList.get(i).getMarkedAssesment().getTypeOfAssesment();
+				String assesmentTopic=subjectList.get(i).getMarkedAssesment().getAssesmentTopic();
+				String dueDate=subjectList.get(i).getMarkedAssesment().getAssesmentLastDate();
+				boolean getGraded=subjectList.get(i).getMarkedAssesment().isGraded();
+				String graded="Not Graded";
+				if(getGraded) {
+					graded="Graded";
+				}
+				String displayText=name+""+id+""+assesmentType+""+assesmentTopic+""+dueDate+""+graded;
+				if(name.toUpperCase().equals(subjectName.toUpperCase())) {
+					subject+="\n" +displayText;
+				}
+				name="";
+			}
+			textarea.setText(subject);
 
+		}
+		
 	}
 	public void setGrade() {
 		JOptionPane.showMessageDialog(null, "This is setGrade", "Discription", 1);

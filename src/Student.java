@@ -1,16 +1,19 @@
-
-public class Student {
-	String name;
-	String yearLevel;
-	public Student(String name,String yearLevel) {
-		this.name=name;
-		this.yearLevel=yearLevel;
+class Student{
+	public String studentName;
+	public String sub[];
+	public String yearLevel;
+	
+	public String getStudentName() {
+		return studentName;
 	}
-	public String getName() {
-		return name;
+	public void setStudentName(String studentName) {
+		this.studentName = studentName;
 	}
-	public void setName(String name) {
-		this.name = name;
+	public String[] getSub() {
+		return sub;
+	}
+	public void setSub(String[] sub) {
+		this.sub = sub;
 	}
 	public String getYearLevel() {
 		return yearLevel;
@@ -19,6 +22,4 @@ public class Student {
 		this.yearLevel = yearLevel;
 	}
 	
-	
-
 }
