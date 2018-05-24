@@ -1,4 +1,5 @@
 import java.awt.BorderLayout;
+import java.awt.Dialog;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -68,7 +69,7 @@ public class StudentManagementSystem extends JFrame{
 		frame.add(setPanelTop(),new BorderLayout().NORTH);
 		frame.add(setPanelMiddle(),new BorderLayout().CENTER);
 		frame.add(setPanelBottom(),new BorderLayout().SOUTH);
-		frame.pack();
+		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 	}
 	public  JPanel setPanelTop() {
 		stnameTextfield = new JTextField(25);
@@ -98,7 +99,7 @@ public class StudentManagementSystem extends JFrame{
 	}
 	public  JPanel setPanelMiddle() {
 		jp2=new JPanel(new FlowLayout(SwingConstants.LEADING, 10, 10));
-		textarea=new JTextArea(15,50);
+		textarea=new JTextArea(50,700);
 		textarea.setLineWrap(true);
 		textarea.setText("Hello welcome!!! \n You can now add students by clicking create student");
 		jp2.setBorder(settitleBorder("Student Performances"));
@@ -140,9 +141,7 @@ public class StudentManagementSystem extends JFrame{
 		displayAssesment.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {	
-				String subjectName=subCombo.getSelectedItem().toString();
 				displayAssesment();
-				System.out.println("I am here");
 			}
 		});	
 		setGrade.addActionListener(new ActionListener() {
@@ -270,40 +269,45 @@ public class StudentManagementSystem extends JFrame{
 
 	}
 	public void displayAssesment() {
-		String subjectName=subCombo.getSelectedItem().toString();
-		if(subCombo.getSelectedIndex()==0) {
-			textarea.setText("Please select subjects");
-		}
-		else if(assCombo.getItemCount()==0){
-			textarea.setText("Assesments are not loaded properly. Please load assesment first and display assesment.");
-		}
-		else {
-			String subject=subjectName;
-			for (int i = 0; i < subjectList.size(); i++) {
-				String name=subjectList.get(i).getSubjectName();
-				String id=subjectList.get(i).getMarkedAssesment().getAssesmentId();
-				String assesmentType=subjectList.get(i).getMarkedAssesment().getTypeOfAssesment();
-				String assesmentTopic=subjectList.get(i).getMarkedAssesment().getAssesmentTopic();
-				String dueDate=subjectList.get(i).getMarkedAssesment().getAssesmentLastDate();
-				boolean getGraded=subjectList.get(i).getMarkedAssesment().isGraded();
-				String graded="Not Graded";
-				if(getGraded) {
-					graded="Graded";
-				}
-				String displayText=name+""+id+""+assesmentType+""+assesmentTopic+""+dueDate+""+graded;
-				if(name.toUpperCase().equals(subjectName.toUpperCase())) {
-					subject+="\n" +displayText;
-				}
-				name="";
+		try {
+			String subjectName=subCombo.getSelectedItem().toString();
+			if(subCombo.getSelectedIndex()==0) {
+				textarea.setText("Please select subjects");
 			}
-			textarea.setText(subject);
-
+			else if(assCombo.getItemCount()==0){
+				textarea.setText("Assesments are not loaded properly. Please load assesment first and display assesment.");
+			}
+			else {
+				String subject=subjectName;
+				for (int i = 0; i < subjectList.size(); i++) {
+					String name=subjectList.get(i).getSubjectName();
+					String id=subjectList.get(i).getMarkedAssesment().getAssesmentId();
+					String assesmentType=subjectList.get(i).getMarkedAssesment().getTypeOfAssesment();
+					String assesmentTopic=subjectList.get(i).getMarkedAssesment().getAssesmentTopic();
+					String dueDate=subjectList.get(i).getMarkedAssesment().getAssesmentLastDate();
+					boolean getGraded=subjectList.get(i).getMarkedAssesment().isGraded();
+					String graded="Not Graded";
+					if(getGraded) {
+						graded="Graded";
+					}
+					String displayText=name+""+id+""+assesmentType+""+assesmentTopic+""+dueDate+""+graded;
+					if(name.toUpperCase().equals(subjectName.toUpperCase())) {
+						subject+="\n" +displayText;
+					}
+					name="";
+				}
+				textarea.setText(subject);
+	
+			}
+		}
+		catch(Exception e) {
+			System.out.println(e.getMessage());
+			JOptionPane.showMessageDialog(null, "Student is not created or Assesment is not loaded", "Warning message", 1);
 		}
 		
 	}
 	public void setGrade() {
-		JOptionPane.showMessageDialog(null, "This is setGrade", "Discription", 1);
-
+			
 	}
 	public void displayGrade() {
 		JOptionPane.showMessageDialog(null, "This is displayGrade", "Discription", 1);
