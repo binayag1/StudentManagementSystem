@@ -1,14 +1,10 @@
 import java.awt.BorderLayout;
-import java.awt.Dialog;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Scanner;
-
-import javax.security.auth.Subject;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -20,11 +16,13 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
-import javax.xml.crypto.Data;
 
 public class StudentManagementSystem extends JFrame{
 	/**
 	 * Student management system
+	 * Written By : Binaya Ghimire 
+	 * Version: 1.0
+	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	public  JTextField stnameTextfield;
@@ -63,8 +61,8 @@ public class StudentManagementSystem extends JFrame{
 	public  void setFrame() {
 		StudentManagementSystem frame=new StudentManagementSystem();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setTitle("Student Management System");
-		frame.setSize(1300,900);
+		frame.setTitle("Student Management System--(Written By Binaya Ghimire)");
+		frame.setSize(1800,900);
 		frame.setVisible(true);
 		frame.add(setPanelTop(),new BorderLayout().NORTH);
 		frame.add(setPanelMiddle(),new BorderLayout().CENTER);
@@ -165,6 +163,7 @@ public class StudentManagementSystem extends JFrame{
 		exit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {	
+				JOptionPane.showMessageDialog(null, "Thank You For Using My Program", "", 1);
 				System.exit(1);
 			}
 		});	
@@ -191,7 +190,7 @@ public class StudentManagementSystem extends JFrame{
 				String assesmentType=subjectList.get(i).getMarkedAssesment().getTypeOfAssesment();
 				String assesmentFormat=subjectList.get(i).getMarkedAssesment().getAssesmentFormat();
 				String assesmentTopic=subjectList.get(i).getMarkedAssesment().getAssesmentTopic();
-				String line=assesmentId+"  "+assesmentType+ " "+assesmentFormat+"  "+assesmentTopic;
+				String line=assesmentId+", "+assesmentType+ ","+assesmentFormat+","+assesmentTopic;
 				assCombo.addItem(line);
 			}
 		}
@@ -307,15 +306,74 @@ public class StudentManagementSystem extends JFrame{
 		
 	}
 	public void setGrade() {
+		try {
+			if(subCombo.getItemCount()>0 && assCombo.getItemCount()>0) {
+				String subName=subCombo.getSelectedItem().toString();
+				String assesment=assCombo.getSelectedItem().toString();
+				String[] flag=assesment.split(",");
+				String assesmentId=flag[0];
+				String assesmentTopic=flag[1];
+				Boolean indicator=false;
+				System.out.println(assesmentId);
+				for (int i = 0; i < subjectList.size(); i++) {
+					if(subName.toUpperCase().equals(subjectList.get(i).getSubjectName().toUpperCase()) && assesmentId.equals(subjectList.get(i).getMarkedAssesment().getAssesmentId())) {
+						subjectList.get(i).getMarkedAssesment().setMarGrade(gradeCombo.getSelectedItem().toString());
+						subjectList.get(i).getMarkedAssesment().setGraded(true);
+						indicator=true;
+					}
+				}
+				if(indicator==true) {
+					textarea.setText("Grade has been assigned!!! Thank You");
+				}
+			}
+			else {
+				JOptionPane.showMessageDialog(null, "Please select subject and assesment first", "Warning message", 1);
+			}
+		}
+		catch(Exception e) {
+			System.out.println(e.getMessage());
+			JOptionPane.showMessageDialog(null, "Something went wring", "Error Message", 1);
+		}
 			
 	}
 	public void displayGrade() {
-		JOptionPane.showMessageDialog(null, "This is displayGrade", "Discription", 1);
-
+		String subName=subCombo.getSelectedItem().toString();
+		String assesment=assCombo.getSelectedItem().toString();
+		String[] flag=assesment.split(",");
+		String id=flag[0];
+		for (int i = 0; i < subjectList.size(); i++) {
+			if(subjectList.get(i).getSubjectName().toUpperCase().equals(subName.toUpperCase())&& subjectList.get(i).getMarkedAssesment().getAssesmentId().equals(id)) {
+			if(!subjectList.get(i).getMarkedAssesment().isGraded()){
+				textarea.setText("Grade has not been set Yet");
+			}
+			else {
+				textarea.setText(subjectList.get(i).getSubjectName()+"--"+subjectList.get(i).getMarkedAssesment().getAssesmentId()+"--"+subjectList.get(i).getMarkedAssesment().getAssesmentTopic()+"--"+subjectList.get(i).getMarkedAssesment().getMarGrade());
+			}
+			}
+		}
 	}
 	public void clearGrade() {
-		JOptionPane.showMessageDialog(null, "This is clearGrade", "Discription", 1);
-
+		try {
+			String subName=subCombo.getSelectedItem().toString();
+			String assesment=assCombo.getSelectedItem().toString();
+			String[] flag=assesment.split(",");
+			String id=flag[0];
+			for (int i = 0; i < subjectList.size(); i++) {
+				if(subjectList.get(i).getSubjectName().toUpperCase().equals(subName.toUpperCase())&& subjectList.get(i).getMarkedAssesment().getAssesmentId().equals(id)) {
+				if(!subjectList.get(i).getMarkedAssesment().isGraded()){
+					textarea.setText("Grade has not been set Yet");
+				}
+				else {
+					subjectList.get(i).getMarkedAssesment().setMarGrade("");
+					subjectList.get(i).getMarkedAssesment().setGraded(false);
+					textarea.setText("Grade has been removed");
+				}
+				}
+			}
+		}
+		catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Something went wrong", "Error Message", 1);
+		}
 	}
 	public boolean validateData(String name) {
 		char c='a';
