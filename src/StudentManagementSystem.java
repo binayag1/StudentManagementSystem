@@ -1,5 +1,7 @@
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
+import java.awt.Panel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -12,6 +14,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
@@ -45,7 +48,19 @@ public class StudentManagementSystem extends JFrame{
 	public  JButton setGrade;
 	public  JButton displayGrade;
 	public  JButton clearGrade;
+	public 	JButton saveData;
 	public  JButton exit;
+	
+	
+//	For Admin Panel
+	public JLabel userlabel;
+	public JLabel passwordLabel;
+	public JPasswordField password;
+	public  JTextField username;
+	public JTextArea messageArea;
+	public JButton button;
+//	 Decleration end for admin panel
+	
 	public 	ArrayList<Student> al=new ArrayList<Student>();
 	ArrayList<Subjects> subjectList=new ArrayList<Subjects>();
 	private final String[] subjects= {"Biology", "Business and Communication Technologies", "English", "Maths B", "Religion and Ethics"};
@@ -56,7 +71,7 @@ public class StudentManagementSystem extends JFrame{
 	
 	public static void main(String args[]) {
 		StudentManagementSystem sm=new StudentManagementSystem();
-		sm.setFrame();
+		sm.amdinFrame();
 	}
 	public  void setFrame() {
 		StudentManagementSystem frame=new StudentManagementSystem();
@@ -112,9 +127,15 @@ public class StudentManagementSystem extends JFrame{
 		loadAssesment=new JButton("Load Assesment");
 		loadAssesment.setEnabled(false);
 		displayAssesment=new JButton("Display Assesment");
+		displayAssesment.setEnabled(false);
 		setGrade=new JButton("Set Grade");
+		setGrade.setEnabled(false);
 		displayGrade=new JButton("Display Grade");
+		displayGrade.setEnabled(false);
 		clearGrade=new JButton("Clear Grade");
+		clearGrade.setEnabled(false);
+		saveData=new JButton("Save Data");
+		saveData.setEnabled(false);
 		exit=new JButton("Exit");
 		jp3.add(createStudent);
 		jp3.add(loadAssesment);
@@ -122,6 +143,7 @@ public class StudentManagementSystem extends JFrame{
 		jp3.add(setGrade);
 		jp3.add(displayGrade);
 		jp3.add(clearGrade);
+		jp3.add(saveData);
 		jp3.add(exit);
 		jp3.setBorder(settitleBorder("Command Buttons"));
 		createStudent.addActionListener(new ActionListener() {
@@ -160,10 +182,16 @@ public class StudentManagementSystem extends JFrame{
 				clearGrade();
 			}
 		});	
+		saveData.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JOptionPane.showMessageDialog(null, "THis is save data", "Info", 1);
+			}
+		});
 		exit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {	
-				JOptionPane.showMessageDialog(null, "Thank You For Using My Program", "", 1);
+				JOptionPane.showMessageDialog(null, "Thank You For Using My Program","INFORMATION_MESSAGE", 1);
 				System.exit(1);
 			}
 		});	
@@ -174,6 +202,7 @@ public class StudentManagementSystem extends JFrame{
 			public void actionPerformed(ActionEvent e) {
 				String selectedSubject=subCombo.getSelectedItem().toString();
 				selecteItem(selectedSubject);
+				displayAssesment.setEnabled(true);
 				
 			}
 		});
@@ -257,6 +286,7 @@ public class StudentManagementSystem extends JFrame{
 				}
 				for (int i = 0; i < grades.length; i++) {
 					gradeCombo.addItem(grades[i]);
+					displayAssesment.setEnabled(true);
 				}
 			}
 			}
@@ -296,6 +326,9 @@ public class StudentManagementSystem extends JFrame{
 					name="";
 				}
 				textarea.setText(subject);
+				setGrade.setEnabled(true);
+				displayGrade.setEnabled(true);
+				clearGrade.setEnabled(true);
 	
 			}
 		}
@@ -325,6 +358,7 @@ public class StudentManagementSystem extends JFrame{
 				if(indicator==true) {
 					textarea.setText("Grade has been assigned!!! Thank You");
 				}
+				saveData.setEnabled(true);
 			}
 			else {
 				JOptionPane.showMessageDialog(null, "Please select subject and assesment first", "Warning message", 1);
@@ -391,5 +425,67 @@ public class StudentManagementSystem extends JFrame{
 		else
 			return true;
 	}
+//	Admin Frame
+	 public void amdinFrame() {
+			 try {
+			 String user;
+			 String pass;
+			 StudentManagementSystem adminFrame=new StudentManagementSystem();
+			 adminFrame.setTitle("Please Enter UserName and Password");
+			 JPanel jp=new JPanel();
+			 adminFrame.add(jp);
+			 adminFrame.setSize(300,300);
+			 adminFrame.add(adminPanel());
+			 adminFrame.setResizable(false);
+			 jp.setBorder(settitleBorder("Study Progress Monitor"));
+			 adminFrame.setVisible(true);
+			 button.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if(authentication()) {
+						StudentManagementSystem sm=new StudentManagementSystem();
+						sm.setFrame();
+						adminFrame.setVisible(false);
+					}
+					else {
+						messageArea.setVisible(true);
+						messageArea.setForeground(Color.RED);
+						messageArea.setText("Invalid username and password");
+					}
+					
+				}
+			});
 	
+			}
+			 catch(Exception e) {
+				 System.out.println(e.getMessage());
+			 }
+	 }
+	 public JPanel adminPanel() {
+		 JPanel panel=new JPanel();
+		 userlabel=new JLabel("Enter UserName");
+		 passwordLabel=new JLabel("Enter Password");
+		 password=new JPasswordField(15);
+		 username=new JTextField(15);
+		 messageArea=new JTextArea(1,8);
+		 button=new JButton("Log In");
+		 panel=new JPanel(new FlowLayout(SwingConstants.LEADING, 10, 10));		
+		 panel.add(userlabel);
+		 panel.add(username);
+		 panel.add(passwordLabel);
+		 panel.add(password);
+		 panel.add(button);
+		 panel.add(messageArea);
+		 messageArea.setVisible(false);
+		 return panel;
+	 }
+	private boolean authentication() {
+		String name=username.getText();
+		String pass=password.getText();
+		System.out.println(name+"----"+pass);
+		if(name.toUpperCase().equals("ADMIN") && pass.toUpperCase().equals("ADMIN"))
+			return true;
+		else
+		return false;
+	}
 }
