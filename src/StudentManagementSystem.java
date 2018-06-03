@@ -1,11 +1,15 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Panel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Scanner;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -19,6 +23,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
+import javax.xml.crypto.Data;
 
 public class StudentManagementSystem extends JFrame{
 	/**
@@ -49,6 +54,8 @@ public class StudentManagementSystem extends JFrame{
 	public  JButton displayGrade;
 	public  JButton clearGrade;
 	public 	JButton saveData;
+	public 	JButton displayData;
+	public 	JButton deleteData;
 	public  JButton exit;
 	
 	
@@ -61,13 +68,17 @@ public class StudentManagementSystem extends JFrame{
 	public JButton button;
 //	 Decleration end for admin panel
 	
-	public 	ArrayList<Student> al=new ArrayList<Student>();
-	ArrayList<Subjects> subjectList=new ArrayList<Subjects>();
+	public 	LinkedList<Student> al=new LinkedList<Student>();
+	LinkedList<Subjects> subjectList=new LinkedList<Subjects>();
 	private final String[] subjects= {"Biology", "Business and Communication Technologies", "English", "Maths B", "Religion and Ethics"};
 	private final String[] grades= {"Very high", "High", "Sound", "Developing", "Emerging"};
 	private String filename="Data.csv";
 	public ArrayList<String> forSubjects=new ArrayList<String>();
 	Student createdStudent=	new Student();
+	
+	public StudentManagementSystem() {
+		
+	}
 	
 	public static void main(String args[]) {
 		StudentManagementSystem sm=new StudentManagementSystem();
@@ -77,7 +88,6 @@ public class StudentManagementSystem extends JFrame{
 		StudentManagementSystem frame=new StudentManagementSystem();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setTitle("Student Management System--(Written By Binaya Ghimire)");
-		frame.setSize(1800,900);
 		frame.setVisible(true);
 		frame.add(setPanelTop(),new BorderLayout().NORTH);
 		frame.add(setPanelMiddle(),new BorderLayout().CENTER);
@@ -96,6 +106,7 @@ public class StudentManagementSystem extends JFrame{
 		assCombo = new JComboBox<String>();
 		gradeCombo = new JComboBox<String>();
 		jp1 = new JPanel(new FlowLayout(SwingConstants.LEADING, 10, 10));
+		jp1.setPreferredSize(new Dimension(900, 200));
 		jp1.add(studentLabel);
 		jp1.add(stnameTextfield);
 		jp1.add(yearLabel);
@@ -136,6 +147,10 @@ public class StudentManagementSystem extends JFrame{
 		clearGrade.setEnabled(false);
 		saveData=new JButton("Save Data");
 		saveData.setEnabled(false);
+		displayData=new JButton("Display Data");
+		displayData.setEnabled(false);
+		deleteData=new JButton("Delete all data");
+		deleteData.setEnabled(false);
 		exit=new JButton("Exit");
 		jp3.add(createStudent);
 		jp3.add(loadAssesment);
@@ -144,6 +159,9 @@ public class StudentManagementSystem extends JFrame{
 		jp3.add(displayGrade);
 		jp3.add(clearGrade);
 		jp3.add(saveData);
+		jp3.add(deleteData);
+		jp3.add(displayData);
+		
 		jp3.add(exit);
 		jp3.setBorder(settitleBorder("Command Buttons"));
 		createStudent.addActionListener(new ActionListener() {
@@ -185,7 +203,26 @@ public class StudentManagementSystem extends JFrame{
 		saveData.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(null, "THis is save data", "Info", 1);
+				saveData();
+				displayData.setEnabled(true);
+				deleteData.setEnabled(true);
+			}
+		});
+		displayData.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				fetchData();
+				
+			}
+		});
+		deleteData.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				deleteData();
+				textarea.setText("");
+				
 			}
 		});
 		exit.addActionListener(new ActionListener() {
@@ -208,6 +245,53 @@ public class StudentManagementSystem extends JFrame{
 		});
 		
 		return jp3;
+	}
+	protected void deleteData() {
+		DatabaseConnectivity db=new DatabaseConnectivity();
+		boolean check=db.deleteAll();
+		if(check) {
+			JOptionPane.showMessageDialog(null, "Data deleted Successfully", "Info Message", 1);
+			
+		}
+		else {
+			JOptionPane.showMessageDialog(null, "Unable to delete Message", "Info Message", 1);
+		}
+		
+	}
+
+	protected void fetchData() {
+		DatabaseConnectivity db=new DatabaseConnectivity();
+		ResultSet rs;
+		rs=db.getData();
+		try {
+			if(!rs.next()) {
+				textarea.setText("");
+				JOptionPane.showMessageDialog(null, "No data to display", "Info Message", 1);
+			}
+			else {
+				String data="";
+				while(rs.next()) {
+					int id = rs.getInt("studentid");
+			        String name = rs.getString("name");
+			        String yearLevel = rs.getString("yearlevel");
+			        data+="Student ID: "+id+"Student Name: "+name+" Year Level: "+yearLevel+"\n";
+				}
+				textarea.setText(data);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	protected void saveData() {
+		DatabaseConnectivity db=new DatabaseConnectivity();
+		LinkedList<Student> list=new LinkedList<Student>();
+		list.add(createdStudent);
+		db.insertData(list);
+	
+	
+		
 	}
 	protected void selecteItem(String selectedSubject) {
 		if(assCombo.getItemCount()>0) {
